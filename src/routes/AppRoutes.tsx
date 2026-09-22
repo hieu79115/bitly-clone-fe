@@ -1,14 +1,16 @@
 import { Route, Routes } from "react-router-dom";
 import AdminRoute from "@/components/common/AdminRoute";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
+import RegisterPage from "@/features/auth/pages/RegisterPage";
+import LoginPage from "@/features/auth/pages/LoginPage";
 
 export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
             <Route path="/" element={<div className="p-8 text-center text-xl">Bitly Clone Dashboard</div>} />
-            <Route path="/login" element={<div className="p-8 text-center">Login page</div>} />
-            <Route path="/register" element={<div className="p-8 text-center">Register page</div>} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             {/* Protected User Routes */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<div className="p-8">User Dashboard</div>} />
