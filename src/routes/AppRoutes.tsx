@@ -1,28 +1,37 @@
-import { Route, Routes } from "react-router-dom";
-import AdminRoute from "@/components/common/AdminRoute";
+import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
-import RegisterPage from "@/features/auth/pages/RegisterPage";
+import AppLayout from "@/components/layout/AppLayout";
 import LoginPage from "@/features/auth/pages/LoginPage";
+import RegisterPage from "@/features/auth/pages/RegisterPage";
+import DashboardPage from "@/features/dashboard/pages/DashboardPage";
+import LinksPage from "@/features/links/pages/LinksPage";
+import AnalyticsPage from "@/features/analytics/pages/AnalyticsPage";
+import SettingsPage from "@/features/profile/pages/SettingsPage";
+import ForbiddenPage from "@/components/common/ForbiddenPage";
+import NotFoundPage from "@/components/common/NotFoundPage";
 
 export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<div className="p-8 text-center text-xl">Bitly Clone Dashboard</div>} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            {/* Protected User Routes */}
+
+            {/* Authenticated Portal wrapped inside AppLayout */}
             <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<div className="p-8">User Dashboard</div>} />
-                <Route path="/links" element={<div className="p-8">Management Urls</div>} />
+                <Route element={<AppLayout />}>
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/links" element={<LinksPage />} />
+                    <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                </Route>
             </Route>
-            {/* Protected Admin Routes */}
-            <Route element={<AdminRoute />}>
-                <Route path="/admin" element={<div className="p-8">Admin Dashboard</div>} />
-            </Route>
+
             {/* Error Routes */}
-            <Route path="/403" element={<div className="p-8 text-center text-red-500 font-bold">403 - You do not have permission to access this!</div>} />
-            <Route path="*" element={<div className="p-8 text-center text-gray-500">404 - Page not found</div>} />
+            <Route path="/403" element={<ForbiddenPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+
         </Routes>
     );
 }
