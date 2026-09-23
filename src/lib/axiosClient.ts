@@ -10,11 +10,15 @@ export const api = axios.create({
     },
 });
 
-// fRequest Interceptor
+// Request Interceptor
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+        const isAuthEndpoint =
+            config.url?.includes('/api/v1/auth/login') ||
+            config.url?.includes('/api/v1/auth/register');
+
         const token = useAuthStore.getState().accessToken;
-        if (token && config.headers) {
+        if (token && config.headers && !isAuthEndpoint) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -45,8 +49,25 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        if (!originalRequest) {
+            return Promise.reject(error);
+        }
+
+        // Never attempt to refresh token for auth endpoints (login, register, refresh)
+        const isAuthEndpoint =
+            originalRequest.url?.includes('/api/v1/auth/login') ||
+            originalRequest.url?.includes('/api/v1/auth/register') ||
+            originalRequest.url?.includes('/api/v1/auth/refresh');
+
         // If a 401 error occurs and no retry has been attempted yet
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+            const refreshToken = useAuthStore.getState().refreshToken;
+
+            if (!refreshToken) {
+                useAuthStore.getState().logout();
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -61,15 +82,8 @@ api.interceptors.response.use(
             originalRequest._retry = true;
             isRefreshing = true;
 
-            const refreshToken = useAuthStore.getState().refreshToken;
-
-            if (!refreshToken) {
-                useAuthStore.getState().logout();
-                return Promise.reject(error);
-            }
-
             try {
-                // Call the backend's refresh token endpoint
+                // Call the backend's refresh token endpoint using raw axios instance
                 const response = await axios.post(`${baseURL}/api/v1/auth/refresh`, {
                     refreshToken,
                 });
