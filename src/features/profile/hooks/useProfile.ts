@@ -9,6 +9,6 @@ export function useProfile() {
         queryKey: ['user-profile'],
         queryFn: profileApi.getProfile,
         enabled: isAuthenticated,
-        staleTime: 5 * 60 * 1000,
+        staleTime: 10 * 1000, // 10 seconds
     });
 }

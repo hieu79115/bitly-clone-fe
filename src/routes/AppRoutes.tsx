@@ -9,6 +9,7 @@ import AnalyticsPage from "@/features/analytics/pages/AnalyticsPage";
 import SettingsPage from "@/features/profile/pages/SettingsPage";
 import ForbiddenPage from "@/components/common/ForbiddenPage";
 import NotFoundPage from "@/components/common/NotFoundPage";
+import LinkExpiredPage from "@/features/links/pages/LinkExpiredPage";
 
 export default function AppRoutes() {
     return (
@@ -29,6 +30,7 @@ export default function AppRoutes() {
             </Route>
 
             {/* Error Routes */}
+            <Route path="/link-expired" element={<LinkExpiredPage />} />
             <Route path="/403" element={<ForbiddenPage />} />
             <Route path="*" element={<NotFoundPage />} />
 
