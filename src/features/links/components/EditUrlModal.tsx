@@ -1,27 +1,39 @@
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X, Loader2, Link2, Sparkles, Tag as TagIcon, Plus, Type } from 'lucide-react';
-import { createUrlSchema, type CreateUrlFormValues } from '../schemas/urlSchema';
+import { X, Loader2, Pencil, Tag as TagIcon, Plus, ExternalLink, Type } from 'lucide-react';
+import { updateUrlSchema, type UpdateUrlFormValues } from '../schemas/urlSchema';
 import { useUrls } from '../hooks/useUrls';
+import type { UrlItem } from '../types';
+import { parseUtcDate } from '@/lib/utils';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 
-interface CreateUrlModalProps {
+interface EditUrlModalProps {
     isOpen: boolean;
     onClose: () => void;
+    url: UrlItem;
 }
 
-export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps) {
+// Convert UTC date string to local HTML datetime string (YYYY-MM-DDTHH:mm)
+function toLocalInputFormat(utcStr: string | null | undefined): string {
+    if (!utcStr) return '';
+    const date = parseUtcDate(utcStr);
+    if (!date) return '';
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+}
+
+export default function EditUrlModal({ isOpen, onClose, url }: EditUrlModalProps) {
     useLockBodyScroll(isOpen);
-    const { createUrl, isCreating, tags, createTag, isCreatingTag } = useUrls();
-    const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+    const { updateUrl, isUpdating, tags, createTag, isCreatingTag } = useUrls();
+    const [selectedTagIds, setSelectedTagIds] = useState<number[]>(() => url.tags?.map((t) => t.id) || []);
     const [newTagName, setNewTagName] = useState('');
     const [showNewTagInput, setShowNewTagInput] = useState(false);
-    const [hasExpiration, setHasExpiration] = useState(false);
+    const [hasExpiration, setHasExpiration] = useState<boolean>(() => Boolean(url.expiresAt));
 
     const {
         register,
@@ -30,13 +42,11 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
         reset,
         setValue,
         formState: { errors },
-    } = useForm<CreateUrlFormValues>({
-        resolver: zodResolver(createUrlSchema),
+    } = useForm<UpdateUrlFormValues>({
+        resolver: zodResolver(updateUrlSchema),
         defaultValues: {
-            title: '',
-            originalUrl: '',
-            customAlias: '',
-            expiresAt: '',
+            title: url.title || '',
+            expiresAt: toLocalInputFormat(url.expiresAt),
         },
     });
 
@@ -62,23 +72,24 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
         }
     };
 
-    const onSubmit = async (data: CreateUrlFormValues) => {
+    const onSubmit = async (data: UpdateUrlFormValues) => {
         try {
-            // Convert local datetime to UTC format expected by the backend (only if expiration is enabled)
-            const expiresAtUtc = (hasExpiration && data.expiresAt)
-                ? new Date(data.expiresAt).toISOString().slice(0, 19)
+            const hasNewDate = Boolean(hasExpiration && data.expiresAt?.trim());
+            const expiresAtUtc = hasNewDate
+                ? new Date(data.expiresAt!).toISOString().slice(0, 19)
                 : undefined;
 
-            await createUrl({
-                title: data.title?.trim() || undefined,
-                originalUrl: data.originalUrl,
-                customAlias: data.customAlias?.trim() || undefined,
-                expiresAt: expiresAtUtc,
-                tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined,
+            await updateUrl({
+                id: url.id,
+                data: {
+                    title: data.title?.trim() || undefined,
+                    expiresAt: expiresAtUtc,
+                    clearExpiration: !hasNewDate,
+                    tagIds: selectedTagIds,
+                },
             });
+
             reset();
-            setHasExpiration(false);
-            setSelectedTagIds([]);
             onClose();
         } catch {
             // Error handled in hook
@@ -95,33 +106,41 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                     <X className="size-5" />
                 </button>
 
+                {/* Header */}
                 <div className="flex items-center gap-2.5 mb-5">
                     <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/20">
-                        <Link2 className="size-5" />
+                        <Pencil className="size-4" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900">Create a Short Link</h3>
-                        <p className="text-xs text-slate-500">Shorten, customize, and organize your URL</p>
+                        <h3 className="text-lg font-bold text-slate-900">Edit Short Link</h3>
+                        <p className="text-xs text-slate-500 font-mono">/{url.shortCode}</p>
+                    </div>
+                </div>
+
+                {/* Link Summary (Read-only) */}
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/70 mb-4 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between">
+                        <span className="font-semibold text-slate-600">Short URL:</span>
+                        <a
+                            href={url.shortUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary hover:underline font-medium flex items-center gap-1"
+                        >
+                            <span>{url.shortUrl}</span>
+                            <ExternalLink className="size-3" />
+                        </a>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                        <span className="font-semibold text-slate-600 shrink-0">Destination:</span>
+                        <span className="text-slate-500 truncate" title={url.originalUrl}>
+                            {url.originalUrl}
+                        </span>
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Destination URL */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                            Destination URL <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                            placeholder="https://example.com/very-long-url-path"
-                            {...register('originalUrl')}
-                            disabled={isCreating}
-                        />
-                        {errors.originalUrl && (
-                            <p className="text-xs text-red-500">{errors.originalUrl.message}</p>
-                        )}
-                    </div>
-
-                    {/* Title (Optional) */}
+                    {/* Title */}
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1">
                             <Type className="size-3.5 text-slate-400" />
@@ -130,33 +149,10 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                         <Input
                             placeholder="e.g. Portfolio Website, Marketing Campaign Q3"
                             {...register('title')}
-                            disabled={isCreating}
+                            disabled={isUpdating}
                         />
                         {errors.title && (
                             <p className="text-xs text-red-500">{errors.title.message}</p>
-                        )}
-                    </div>
-
-                    {/* Custom Alias */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1">
-                            <Sparkles className="size-3.5 text-amber-500" />
-                            <span>Custom Back-half (Optional)</span>
-                        </label>
-                        <div className="flex rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary overflow-hidden">
-                            <span className="bg-slate-50 px-3 py-1.5 text-xs text-slate-500 font-mono flex items-center border-r border-slate-200 select-none">
-                                localhost:8080/
-                            </span>
-                            <input
-                                type="text"
-                                placeholder="my-custom-slug"
-                                {...register('customAlias')}
-                                disabled={isCreating}
-                                className="flex-1 px-3 py-1.5 text-sm outline-none bg-transparent"
-                            />
-                        </div>
-                        {errors.customAlias && (
-                            <p className="text-xs text-red-500">{errors.customAlias.message}</p>
                         )}
                     </div>
 
@@ -174,10 +170,11 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                                         type="button"
                                         key={tag.id}
                                         onClick={() => toggleTag(tag.id)}
-                                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${isSelected
+                                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                                            isSelected
                                                 ? 'bg-primary text-primary-foreground shadow-xs'
                                                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                            }`}
+                                        }`}
                                     >
                                         #{tag.name}
                                     </button>
@@ -226,9 +223,9 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                     {/* Expiration Date Section */}
                     <div className="space-y-2 pt-1 border-t border-slate-100">
                         <div className="flex items-center justify-between">
-                            <label htmlFor="create-toggle-expiration" className="text-xs font-semibold text-slate-700 cursor-pointer flex items-center gap-2 select-none">
+                            <label htmlFor="edit-toggle-expiration" className="text-xs font-semibold text-slate-700 cursor-pointer flex items-center gap-2 select-none">
                                 <Checkbox
-                                    id="create-toggle-expiration"
+                                    id="edit-toggle-expiration"
                                     checked={hasExpiration}
                                     onCheckedChange={(checked) => {
                                         setHasExpiration(checked);
@@ -247,7 +244,7 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                                 <DateTimePicker
                                     value={expiresAt}
                                     onChange={(val) => setValue('expiresAt', val, { shouldValidate: true })}
-                                    disabled={isCreating}
+                                    disabled={isUpdating}
                                     placeholder="Select expiration date & time"
                                 />
                                 {errors.expiresAt && (
@@ -257,17 +254,18 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                         )}
                     </div>
 
+                    {/* Actions */}
                     <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
-                        <Button type="button" variant="outline" onClick={onClose} disabled={isCreating}>
+                        <Button type="button" variant="outline" onClick={onClose} disabled={isUpdating}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isCreating}>
-                            {isCreating ? (
+                        <Button type="submit" disabled={isUpdating}>
+                            {isUpdating ? (
                                 <>
-                                    <Loader2 className="size-4 animate-spin mr-2" /> Creating...
+                                    <Loader2 className="size-4 animate-spin mr-2" /> Saving...
                                 </>
                             ) : (
-                                'Create Short Link'
+                                'Save Changes'
                             )}
                         </Button>
                     </div>

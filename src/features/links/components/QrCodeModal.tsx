@@ -1,5 +1,6 @@
-import { X, Download, ExternalLink } from 'lucide-react';
+import { X, Download, ExternalLink, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 interface QrCodeModalProps {
     isOpen: boolean;
@@ -9,6 +10,8 @@ interface QrCodeModalProps {
 }
 
 export default function QrCodeModal({ isOpen, onClose, shortUrl, shortCode }: QrCodeModalProps) {
+    useLockBodyScroll(isOpen);
+
     if (!isOpen) return null;
 
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(shortUrl)}`;
@@ -40,8 +43,16 @@ export default function QrCodeModal({ isOpen, onClose, shortUrl, shortCode }: Qr
                     <X className="size-5" />
                 </button>
 
-                <h3 className="text-lg font-bold text-slate-900">QR Code</h3>
-                <p className="text-xs text-slate-500 mt-1 truncate max-w-xs mx-auto">{shortUrl}</p>
+                {/* Header matching CreateUrlModal */}
+                <div className="flex items-center gap-2.5 mb-5 text-left">
+                    <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
+                        <QrCode className="size-5" />
+                    </div>
+                    <div className="overflow-hidden">
+                        <h3 className="text-lg font-bold text-slate-900 leading-snug">QR Code</h3>
+                        <p className="text-xs text-slate-500 truncate max-w-[220px]">{shortUrl}</p>
+                    </div>
+                </div>
 
                 <div className="my-6 p-4 bg-slate-50 rounded-xl inline-block border border-slate-100 shadow-inner">
                     <img src={qrUrl} alt="QR Code" className="size-52 mx-auto rounded-lg" />
