@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Link2, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { Plus, Link2, ChevronLeft, ChevronRight, Filter, RotateCcw } from 'lucide-react';
 import { useUrls } from '../hooks/useUrls';
 import UrlCard from '../components/UrlCard';
 import CreateUrlModal from '../components/CreateUrlModal';
@@ -21,7 +21,7 @@ export default function LinksPage() {
         setSearchParams(searchParams);
     };
 
-    const { urlsData, isLoadingUrls, tags, deleteUrl } = useUrls(page, 10, selectedTagId);
+    const { urlsData, isLoadingUrls, tags, deleteUrl, refetchUrls, isRefetching } = useUrls(page, 10, selectedTagId);
 
     return (
         <div className="space-y-6">
@@ -31,10 +31,23 @@ export default function LinksPage() {
                     <h1 className="text-2xl font-bold tracking-tight text-slate-900">Links</h1>
                     <p className="text-sm text-slate-500 mt-0.5">Manage and track your shortened URLs</p>
                 </div>
-                <Button onClick={() => setIsCreateOpen(true)} className="gap-2 shadow-sm">
-                    <Plus className="size-4" />
-                    <span>Create link</span>
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => refetchUrls()}
+                        disabled={isRefetching}
+                        className="gap-1.5"
+                        title="Refresh link list"
+                    >
+                        <RotateCcw className={`size-4 ${isRefetching ? 'animate-spin' : ''}`} />
+                        <span className="hidden sm:inline">Refresh</span>
+                    </Button>
+                    <Button onClick={() => setIsCreateOpen(true)} className="gap-2 shadow-sm">
+                        <Plus className="size-4" />
+                        <span>Create link</span>
+                    </Button>
+                </div>
             </div>
 
             {/* Tag Filter Bar */}

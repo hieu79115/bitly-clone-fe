@@ -18,6 +18,10 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
     const [newTagName, setNewTagName] = useState('');
     const [showNewTagInput, setShowNewTagInput] = useState(false);
 
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const minDateTime = now.toISOString().slice(0, 16);
+
     const {
         register,
         handleSubmit,
@@ -54,10 +58,15 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
 
     const onSubmit = async (data: CreateUrlFormValues) => {
         try {
+            // Convert local datetime to UTC format expected by the backend
+            const expiresAtUtc = data.expiresAt
+                ? new Date(data.expiresAt).toISOString().slice(0, 19)
+                : undefined;
+
             await createUrl({
                 originalUrl: data.originalUrl,
                 customAlias: data.customAlias?.trim() || undefined,
-                expiresAt: data.expiresAt ? `${data.expiresAt}:00` : undefined,
+                expiresAt: expiresAtUtc,
                 tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined,
             });
             reset();
@@ -197,9 +206,13 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                         </label>
                         <Input
                             type="datetime-local"
+                            min={minDateTime}
                             {...register('expiresAt')}
                             disabled={isCreating}
                         />
+                        {errors.expiresAt && (
+                            <p className="text-xs text-red-500">{errors.expiresAt.message}</p>
+                        )}
                     </div>
 
                     <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">

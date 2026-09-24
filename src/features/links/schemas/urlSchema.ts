@@ -12,7 +12,12 @@ export const createUrlSchema = z.object({
             'Alias must be between 4 and 20 characters (letters, numbers, underscores, hyphens)'
         )
         .optional(),
-    expiresAt: z.string().optional(),
+    expiresAt: z
+        .string()
+        .refine((val) => !val || new Date(val).getTime() > Date.now(), {
+            message: 'Expiration time must be in the future',
+        })
+        .optional(),
     tagIds: z.array(z.number()).optional(),
 });
 

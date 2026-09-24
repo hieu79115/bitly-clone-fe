@@ -1,4 +1,5 @@
 import { useProfile } from '../hooks/useProfile';
+import { formatDate } from '@/lib/utils';
 
 export default function SettingsPage() {
     const { data: profile } = useProfile();
@@ -14,7 +15,7 @@ export default function SettingsPage() {
                 <div>
                     <label className="text-xs font-semibold text-slate-400 uppercase">Member Since</label>
                     <p className="text-sm text-slate-600">
-                        {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A'}
+                        {profile?.createdAt ? formatDate(profile.createdAt) : 'N/A'}
                     </p>
                 </div>
             </div>

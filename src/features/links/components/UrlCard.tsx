@@ -3,6 +3,7 @@ import { Copy, Check, QrCode, Trash2, ExternalLink, Calendar, MousePointerClick 
 import { toast } from 'sonner';
 import type { UrlItem } from '../types';
 import QrCodeModal from './QrCodeModal';
+import { formatDate, formatDateTime } from '@/lib/utils';
 
 interface UrlCardProps {
     url: UrlItem;
@@ -59,15 +60,15 @@ export default function UrlCard({ url, onDelete }: UrlCardProps) {
                         {url.originalUrl}
                     </p>
 
-                    {/* Metadata: Created Date */}
+                    {/* Metadata: Created Date & Expiration */}
                     <div className="flex items-center gap-3 text-[11px] text-slate-400 pt-1">
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1" title={formatDateTime(url.createdAt)}>
                             <Calendar className="size-3" />
-                            {new Date(url.createdAt).toLocaleDateString()}
+                            {formatDate(url.createdAt)}
                         </span>
                         {url.expiresAt && (
-                            <span className="text-amber-600 font-medium">
-                                Expires: {new Date(url.expiresAt).toLocaleDateString()}
+                            <span className="text-amber-600 font-medium" title={formatDateTime(url.expiresAt)}>
+                                Expires: {formatDateTime(url.expiresAt)}
                             </span>
                         )}
                     </div>

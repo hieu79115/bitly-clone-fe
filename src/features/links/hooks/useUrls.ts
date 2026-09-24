@@ -10,6 +10,7 @@ export function useUrls(page = 0, size = 10, tagId?: number) {
     const urlsQuery = useQuery({
         queryKey: ['urls', page, size, tagId],
         queryFn: () => urlApi.getUrls(page, size, tagId),
+        staleTime: 0, // Always revalidate links in the background on page switch
     });
 
     const tagsQuery = useQuery({
@@ -26,8 +27,16 @@ export function useUrls(page = 0, size = 10, tagId?: number) {
         },
         onError: (error: Error) => {
             let message = 'Failed to create short link';
-            if (axios.isAxiosError(error) && error.response?.data?.message) {
-                message = error.response.data.message;
+            if (axios.isAxiosError(error) && error.response?.data) {
+                const data = error.response.data;
+                if (data.errors && typeof data.errors === 'object') {
+                    const errorMessages = Object.values(data.errors);
+                    if (errorMessages.length > 0 && typeof errorMessages[0] === 'string') {
+                        message = errorMessages.join(', ');
+                    }
+                } else if (data.message) {
+                    message = data.message;
+                }
             }
             toast.error(message);
         },
@@ -53,8 +62,16 @@ export function useUrls(page = 0, size = 10, tagId?: number) {
         },
         onError: (error: Error) => {
             let message = 'Failed to create tag';
-            if (axios.isAxiosError(error) && error.response?.data?.message) {
-                message = error.response.data.message;
+            if (axios.isAxiosError(error) && error.response?.data) {
+                const data = error.response.data;
+                if (data.errors && typeof data.errors === 'object') {
+                    const errorMessages = Object.values(data.errors);
+                    if (errorMessages.length > 0 && typeof errorMessages[0] === 'string') {
+                        message = errorMessages.join(', ');
+                    }
+                } else if (data.message) {
+                    message = data.message;
+                }
             }
             toast.error(message);
         },
@@ -70,5 +87,7 @@ export function useUrls(page = 0, size = 10, tagId?: number) {
         isDeleting: deleteUrlMutation.isPending,
         createTag: createTagMutation.mutateAsync,
         isCreatingTag: createTagMutation.isPending,
+        refetchUrls: urlsQuery.refetch,
+        isRefetching: urlsQuery.isRefetching,
     };
 }
