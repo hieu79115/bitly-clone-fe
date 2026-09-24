@@ -6,6 +6,7 @@ export interface TagItem {
 
 export interface UrlItem {
     id: number;
+    title?: string | null;
     originalUrl: string;
     shortUrl: string;
     shortCode: string;
@@ -16,9 +17,17 @@ export interface UrlItem {
 }
 
 export interface CreateUrlRequest {
+    title?: string;
     originalUrl: string;
     customAlias?: string;
     expiresAt?: string;
+    tagIds?: number[];
+}
+
+export interface UpdateUrlRequest {
+    title?: string;
+    expiresAt?: string;
+    clearExpiration?: boolean;
     tagIds?: number[];
 }
 

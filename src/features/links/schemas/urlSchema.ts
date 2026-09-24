@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const createUrlSchema = z.object({
+    title: z.string().max(255, 'Title must not exceed 255 characters').optional(),
     originalUrl: z
         .string()
         .min(1, 'Please enter a destination URL')
@@ -22,3 +23,16 @@ export const createUrlSchema = z.object({
 });
 
 export type CreateUrlFormValues = z.infer<typeof createUrlSchema>;
+
+export const updateUrlSchema = z.object({
+    title: z.string().max(255, 'Title must not exceed 255 characters').optional(),
+    expiresAt: z
+        .string()
+        .refine((val) => !val || new Date(val).getTime() > Date.now(), {
+            message: 'Expiration time must be in the future',
+        })
+        .optional(),
+    tagIds: z.array(z.number()).optional(),
+});
+
+export type UpdateUrlFormValues = z.infer<typeof updateUrlSchema>;

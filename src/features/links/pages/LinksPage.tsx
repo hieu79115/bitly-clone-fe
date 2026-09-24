@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Link2, ChevronLeft, ChevronRight, Filter, RotateCcw } from 'lucide-react';
+import { Plus, Link2, ChevronLeft, ChevronRight, Filter, RotateCcw, Tag as TagIcon } from 'lucide-react';
 import { useUrls } from '../hooks/useUrls';
 import UrlCard from '../components/UrlCard';
 import CreateUrlModal from '../components/CreateUrlModal';
+import ManageTagsModal from '../components/ManageTagsModal';
 import { Button } from '@/components/ui/button';
 
 export default function LinksPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [page, setPage] = useState(0);
     const [selectedTagId, setSelectedTagId] = useState<number | undefined>(undefined);
+    const [isManageTagsOpen, setIsManageTagsOpen] = useState(false);
 
     const isCreateOpen = searchParams.get('action') === 'create';
     const setIsCreateOpen = (open: boolean) => {
@@ -42,6 +44,16 @@ export default function LinksPage() {
                     >
                         <RotateCcw className={`size-4 ${isRefetching ? 'animate-spin' : ''}`} />
                         <span className="hidden sm:inline">Refresh</span>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsManageTagsOpen(true)}
+                        className="gap-1.5"
+                        title="Manage tags"
+                    >
+                        <TagIcon className="size-4 text-slate-500" />
+                        <span className="hidden sm:inline">Manage Tags</span>
                     </Button>
                     <Button onClick={() => setIsCreateOpen(true)} className="gap-2 shadow-sm">
                         <Plus className="size-4" />
@@ -151,6 +163,9 @@ export default function LinksPage() {
 
             {/* Create Link Modal */}
             <CreateUrlModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+
+            {/* Manage Tags Modal */}
+            <ManageTagsModal isOpen={isManageTagsOpen} onClose={() => setIsManageTagsOpen(false)} />
         </div>
     );
 }
