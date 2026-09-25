@@ -288,14 +288,14 @@ export default function AnalyticsPage() {
 
             {/* Row 1: Clicks Over Time (Area Chart) */}
             <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-xs space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                            <span>Clicks Over Time</span>
-                            <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h2 className="text-base font-bold text-slate-900">Clicks Over Time</h2>
+                            <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full whitespace-nowrap">
                                 Last {days} Days
                             </span>
-                        </h2>
+                        </div>
                         <p className="text-xs text-slate-400 mt-0.5">
                             Daily click engagement and volume trend
                         </p>
