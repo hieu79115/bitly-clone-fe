@@ -2,10 +2,20 @@ import { api } from "@/lib/axiosClient";
 import type { CreateUrlRequest, UpdateUrlRequest, SpringPage, TagItem, UrlItem } from "../types";
 
 export const urlApi = {
-    // GET /api/v1/urls (Pagination & Filter by Tag)
-    getUrls: async (page = 0, size = 10, tagId?: number): Promise<SpringPage<UrlItem>> => {
+    // GET /api/v1/urls (Pagination, Search, Status & Sort)
+    getUrls: async (
+        page = 0,
+        size = 10,
+        tagId?: number,
+        search?: string,
+        status?: string,
+        sort?: string
+    ): Promise<SpringPage<UrlItem>> => {
         const params: Record<string, string | number> = { page, size };
         if (tagId) params.tagId = tagId;
+        if (search && search.trim()) params.search = search.trim();
+        if (status && status !== 'all') params.status = status;
+        if (sort) params.sort = sort;
         const response = await api.get<SpringPage<UrlItem>>('/api/v1/urls', { params });
         return response.data;
     },

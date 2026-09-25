@@ -4,12 +4,19 @@ import type { CreateUrlRequest, UpdateUrlRequest } from "../types";
 import { toast } from "sonner";
 import axios from "axios";
 
-export function useUrls(page = 0, size = 10, tagId?: number) {
+export function useUrls(
+    page = 0,
+    size = 10,
+    tagId?: number,
+    search?: string,
+    status?: string,
+    sort?: string
+) {
     const queryClient = useQueryClient();
 
     const urlsQuery = useQuery({
-        queryKey: ['urls', page, size, tagId],
-        queryFn: () => urlApi.getUrls(page, size, tagId),
+        queryKey: ['urls', page, size, tagId, search, status, sort],
+        queryFn: () => urlApi.getUrls(page, size, tagId, search, status, sort),
         staleTime: 0, // Always revalidate links in the background on page switch
     });
 

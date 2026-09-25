@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Copy,
     Check,
@@ -13,6 +14,7 @@ import {
     Infinity as InfinityIcon,
     Globe,
     CornerDownRight,
+    BarChart3,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { UrlItem } from '../types';
@@ -27,6 +29,7 @@ interface UrlCardProps {
 }
 
 export default function UrlCard({ url, onDelete }: UrlCardProps) {
+    const navigate = useNavigate();
     const [copied, setCopied] = useState(false);
     const [showQrModal, setShowQrModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -82,10 +85,15 @@ export default function UrlCard({ url, onDelete }: UrlCardProps) {
 
                     {/* Status & Click Badges */}
                     <div className="flex items-center gap-2 shrink-0">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                        <button
+                            type="button"
+                            onClick={() => navigate(`/analytics?shortCode=${url.shortCode}`)}
+                            title="View analytics for this link"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100/80 hover:border-emerald-200 transition-all cursor-pointer"
+                        >
                             <MousePointerClick className="size-3" />
                             <span>{url.clickCount} clicks</span>
-                        </span>
+                        </button>
 
                         {isExpired ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
@@ -199,6 +207,15 @@ export default function UrlCard({ url, onDelete }: UrlCardProps) {
                             title="View QR Code"
                         >
                             <QrCode className="size-4" />
+                        </button>
+
+                        {/* Analytics Button */}
+                        <button
+                            onClick={() => navigate(`/analytics?shortCode=${url.shortCode}`)}
+                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            title="View Analytics"
+                        >
+                            <BarChart3 className="size-4" />
                         </button>
 
                         {/* Edit Button */}

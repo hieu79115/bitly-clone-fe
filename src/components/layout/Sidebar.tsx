@@ -23,7 +23,7 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
                         <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/20">
                             <Link2 className="size-5" />
                         </div>
-                        <span>Bitly Clone</span>
+                        <span>Shortener</span>
                     </NavLink>
 
                     {/* Close button for Mobile drawer */}

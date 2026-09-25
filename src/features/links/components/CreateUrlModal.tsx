@@ -106,21 +106,6 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Destination URL */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                            Destination URL <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                            placeholder="https://example.com/very-long-url-path"
-                            {...register('originalUrl')}
-                            disabled={isCreating}
-                        />
-                        {errors.originalUrl && (
-                            <p className="text-xs text-red-500">{errors.originalUrl.message}</p>
-                        )}
-                    </div>
-
                     {/* Title (Optional) */}
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1">
@@ -134,6 +119,21 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                         />
                         {errors.title && (
                             <p className="text-xs text-red-500">{errors.title.message}</p>
+                        )}
+                    </div>
+
+                    {/* Destination URL */}
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                            Destination URL <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                            placeholder="https://example.com/very-long-url-path"
+                            {...register('originalUrl')}
+                            disabled={isCreating}
+                        />
+                        {errors.originalUrl && (
+                            <p className="text-xs text-red-500">{errors.originalUrl.message}</p>
                         )}
                     </div>
 
