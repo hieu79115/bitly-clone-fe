@@ -54,7 +54,7 @@ export function useAuth() {
             queryClient.clear();
             logoutStore();
             toast.info('Logged out');
-            navigate('/login');
+            navigate('/');
         }
     };
 
