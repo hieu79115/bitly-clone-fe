@@ -5,6 +5,7 @@ import type { LoginRequest, RegisterRequest } from "../types";
 import { authApi } from "../api/authApi";
 import { toast } from "sonner";
 import axios from "axios";
+import { queryClient } from "@/lib/queryClient";
 
 
 export function useAuth() {
@@ -15,6 +16,7 @@ export function useAuth() {
     const loginMutation = useMutation({
         mutationFn: (data: LoginRequest) => authApi.login(data),
         onSuccess: (response) => {
+            queryClient.clear();
             setAuth(response);
             toast.success('Login successful!');
             navigate('/dashboard');
@@ -49,9 +51,10 @@ export function useAuth() {
         } catch {
             // ignore
         } finally {
+            queryClient.clear();
             logoutStore();
             toast.info('Logged out');
-            navigate('/login');
+            navigate('/');
         }
     };
 

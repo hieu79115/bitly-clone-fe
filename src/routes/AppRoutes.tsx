@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
 import AppLayout from "@/components/layout/AppLayout";
 import LoginPage from "@/features/auth/pages/LoginPage";
@@ -7,14 +7,16 @@ import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import LinksPage from "@/features/links/pages/LinksPage";
 import AnalyticsPage from "@/features/analytics/pages/AnalyticsPage";
 import SettingsPage from "@/features/profile/pages/SettingsPage";
+import LandingPage from "@/features/landing/pages/LandingPage";
 import ForbiddenPage from "@/components/common/ForbiddenPage";
 import NotFoundPage from "@/components/common/NotFoundPage";
+import LinkExpiredPage from "@/features/links/pages/LinkExpiredPage";
 
 export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
@@ -29,6 +31,7 @@ export default function AppRoutes() {
             </Route>
 
             {/* Error Routes */}
+            <Route path="/link-expired" element={<LinkExpiredPage />} />
             <Route path="/403" element={<ForbiddenPage />} />
             <Route path="*" element={<NotFoundPage />} />
 

@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware';
 import type { User } from '@/types/user';
 import type { AuthResponse } from '@/features/auth/types';
 
+import { queryClient } from '@/lib/queryClient';
+
 interface AuthState {
     user: User | null;
     accessToken: string | null;
@@ -39,13 +41,15 @@ export const useAuthStore = create<AuthState>()(
 
             setUser: (user: User) => set({ user }),
 
-            logout: () =>
+            logout: () => {
+                queryClient.clear();
                 set({
                     user: null,
                     accessToken: null,
                     refreshToken: null,
                     isAuthenticated: false,
-                }),
+                });
+            },
         }),
         {
             name: 'auth-storage',

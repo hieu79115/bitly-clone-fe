@@ -1,4 +1,5 @@
 import { Menu, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import { Button } from '@/components/ui/button';
 
@@ -7,6 +8,8 @@ interface HeaderProps {
 }
 
 export default function Header({ onOpenMobileSidebar }: HeaderProps) {
+    const navigate = useNavigate();
+
     return (
         <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
             {/* Left: Mobile Toggle Button */}
@@ -21,7 +24,11 @@ export default function Header({ onOpenMobileSidebar }: HeaderProps) {
 
             {/* Right: Actions & User */}
             <div className="flex items-center gap-3">
-                <Button size="sm" className="hidden sm:inline-flex gap-1.5 shadow-sm">
+                <Button
+                    size="sm"
+                    onClick={() => navigate('/links?action=create')}
+                    className="hidden sm:inline-flex gap-1.5 shadow-sm"
+                >
                     <Plus className="size-4" />
                     <span>Create link</span>
                 </Button>
