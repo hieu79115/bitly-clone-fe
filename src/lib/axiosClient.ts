@@ -1,5 +1,6 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
+import { toast } from 'sonner';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -58,6 +59,13 @@ api.interceptors.response.use(
             originalRequest.url?.includes('/api/v1/auth/login') ||
             originalRequest.url?.includes('/api/v1/auth/register') ||
             originalRequest.url?.includes('/api/v1/auth/refresh');
+
+        // If rate limit (HTTP 429) is exceeded, show warning toast
+        if (error.response?.status === 429) {
+            const message = error.response.data?.message || 'Too many requests. Please slow down and try again.';
+            toast.error(message);
+            return Promise.reject(error);
+        }
 
         // If a 401 error occurs and no retry has been attempted yet
         if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
