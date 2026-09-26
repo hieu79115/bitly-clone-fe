@@ -40,7 +40,7 @@ export default function UserMenu() {
                         className="size-8 rounded-full object-cover border border-slate-200"
                     />
                 ) : (
-                    <div className="size-8 rounded-full bg-primary text-primary-foreground font-semibold flex items-center justify-center text-sm shadow-sm">
+                    <div className="size-8 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center text-sm shadow-xs">
                         {initial}
                     </div>
                 )}
