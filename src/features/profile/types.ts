@@ -1,6 +1,6 @@
 export interface UserProfile {
-    id: number,
-    email: string,
+    id: number;
+    email: string;
     fullName?: string;
     avatarUrl?: string;
     bio?: string;
@@ -9,4 +9,18 @@ export interface UserProfile {
     totalUrls: number;
     totalClicks: number;
     createdAt: string;
+}
+
+export interface UpdateProfileRequest {
+    fullName?: string;
+    avatarUrl?: string;
+    bio?: string;
+    phoneNumber?: string;
+    company?: string;
+}
+
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
 }
