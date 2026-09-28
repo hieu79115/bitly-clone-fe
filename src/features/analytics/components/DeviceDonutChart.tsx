@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Smartphone, Monitor, Tablet as TabletIcon, Bot, HelpCircle } from 'lucide-react';
 import type { ClicksByDevice } from '../types';
@@ -18,6 +19,18 @@ const DEFAULT_COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
 
 export default function DeviceDonutChart({ data }: DeviceDonutChartProps) {
     const totalClicks = data.reduce((sum, item) => sum + item.count, 0);
+
+    // Disable hover tooltip on mobile / touch devices so it won't collide with the center text
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     if (!data || data.length === 0 || totalClicks === 0) {
         return (
@@ -41,23 +54,25 @@ export default function DeviceDonutChart({ data }: DeviceDonutChartProps) {
             <div className="w-full h-52 relative flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                        <Tooltip
-                            content={({ active, payload }) => {
-                                if (active && payload && payload.length) {
-                                    const pData = payload[0].payload as { device: string; count: number };
-                                    const percentage = totalClicks > 0 ? ((pData.count / totalClicks) * 100).toFixed(1) : '0';
-                                    return (
-                                        <div className="bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-lg shadow-xl text-xs space-y-0.5 border border-slate-700/50">
-                                            <p className="font-semibold">{pData.device}</p>
-                                            <p className="text-slate-300">
-                                                {pData.count} clicks ({percentage}%)
-                                            </p>
-                                        </div>
-                                    );
-                                }
-                                return null;
-                            }}
-                        />
+                        {!isMobile && (
+                            <Tooltip
+                                content={({ active, payload }) => {
+                                    if (active && payload && payload.length) {
+                                        const pData = payload[0].payload as { device: string; count: number };
+                                        const percentage = totalClicks > 0 ? ((pData.count / totalClicks) * 100).toFixed(1) : '0';
+                                        return (
+                                            <div className="bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-lg shadow-xl text-xs space-y-0.5 border border-slate-700/50">
+                                                <p className="font-semibold">{pData.device}</p>
+                                                <p className="text-slate-300">
+                                                    {pData.count} clicks ({percentage}%)
+                                                </p>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                }}
+                            />
+                        )}
                         <Pie
                             data={data}
                             dataKey="count"

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { getShortDomainDisplay } from '@/lib/utils';
 
 interface CreateUrlModalProps {
     isOpen: boolean;
@@ -145,7 +146,7 @@ export default function CreateUrlModal({ isOpen, onClose }: CreateUrlModalProps)
                         </label>
                         <div className="flex rounded-lg border border-slate-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary overflow-hidden">
                             <span className="bg-slate-50 px-3 py-1.5 text-xs text-slate-500 font-mono flex items-center border-r border-slate-200 select-none">
-                                localhost:8080/
+                                {getShortDomainDisplay()}
                             </span>
                             <input
                                 type="text"

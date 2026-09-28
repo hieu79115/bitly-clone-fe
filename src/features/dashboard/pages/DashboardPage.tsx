@@ -22,7 +22,7 @@ import ClicksOverTimeChart from '@/features/analytics/components/ClicksOverTimeC
 import QrCodeModal from '@/features/links/components/QrCodeModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getDomain, getFaviconUrl } from '@/lib/utils';
+import { getDomain, getFaviconUrl, getShortDomainDisplay } from '@/lib/utils';
 import type { UrlItem } from '@/features/links/types';
 
 export default function DashboardPage() {
@@ -95,7 +95,7 @@ export default function DashboardPage() {
                         Here is an overview of your link performance and recent activity.
                     </p>
                 </div>
-                
+
             </div>
 
             {/* Quick Shorten Bar Widget */}
@@ -103,9 +103,6 @@ export default function DashboardPage() {
                 <div className="relative z-10 space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-xs">
-                                <Sparkles className="size-4" />
-                            </div>
                             <div>
                                 <h2 className="text-sm font-bold text-slate-900">Quick URL Shortener</h2>
                                 <p className="text-[11px] text-slate-500">
@@ -145,7 +142,6 @@ export default function DashboardPage() {
                                     </>
                                 ) : (
                                     <>
-                                        <Sparkles className="size-4" />
                                         <span>Shorten URL</span>
                                     </>
                                 )}
@@ -155,7 +151,7 @@ export default function DashboardPage() {
                         {showAlias && (
                             <div className="flex items-center rounded-xl border border-slate-200 bg-white overflow-hidden max-w-sm animate-in fade-in slide-in-from-top-1 duration-150">
                                 <span className="bg-slate-50 px-3 py-1.5 text-xs text-slate-500 font-mono border-r border-slate-200 select-none">
-                                    localhost:8080/
+                                    {getShortDomainDisplay()}
                                 </span>
                                 <input
                                     type="text"
