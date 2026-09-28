@@ -49,3 +49,48 @@ export function getFaviconUrl(urlStr: string): string {
     return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 }
 
+/**
+ * Resolves the short link domain prefix for display in forms (e.g. Dashboard, Create Link).
+ * Uses VITE_SHORT_DOMAIN or VITE_API_BASE_URL if set, falls back to window.location.host in production, or localhost:8080/ in local dev.
+ */
+export function getShortDomainDisplay(): string {
+    const customDomain = import.meta.env.VITE_SHORT_DOMAIN;
+    if (customDomain) {
+        return customDomain.replace(/^https?:\/\//, '').replace(/\/$/, '') + '/';
+    }
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    if (apiUrl) {
+        try {
+            const parsed = new URL(apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`);
+            return parsed.host + '/';
+        } catch {
+            return apiUrl.replace(/^https?:\/\//, '').replace(/\/$/, '') + '/';
+        }
+    }
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        return window.location.host + '/';
+    }
+    return 'localhost:8080/';
+}
+
+/**
+ * Resolves the full clickable/copyable URL for a short code (e.g. http://localhost:8080/abc or https://sho.rt/abc)
+ */
+export function getFullShortUrl(shortCode: string): string {
+    const customDomain = import.meta.env.VITE_SHORT_DOMAIN;
+    if (customDomain) {
+        const base = customDomain.startsWith('http') ? customDomain : `https://${customDomain}`;
+        return `${base.replace(/\/$/, '')}/${shortCode}`;
+    }
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    if (apiUrl) {
+        const base = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
+        return `${base.replace(/\/$/, '')}/${shortCode}`;
+    }
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        return `${window.location.origin}/${shortCode}`;
+    }
+    return `http://localhost:8080/${shortCode}`;
+}
+
+

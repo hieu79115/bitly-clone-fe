@@ -24,7 +24,7 @@ import OsBarChart from '../components/OsBarChart';
 import TopLinksTable from '../components/TopLinksTable';
 import SearchableLinkSelector from '../components/SearchableLinkSelector';
 import { Button } from '@/components/ui/button';
-import { getDomain, getFaviconUrl } from '@/lib/utils';
+import { getDomain, getFaviconUrl, getFullShortUrl } from '@/lib/utils';
 
 export default function AnalyticsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -185,7 +185,7 @@ export default function AnalyticsPage() {
                             size="sm"
                             variant="outline"
                             className="gap-1.5"
-                            onClick={() => handleCopy(`http://localhost:8080/${analytics.shortCode}`)}
+                            onClick={() => handleCopy(analytics.shortCode ? getFullShortUrl(analytics.shortCode) : '')}
                         >
                             {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
                             <span>{copied ? 'Copied' : 'Copy Link'}</span>
@@ -194,7 +194,10 @@ export default function AnalyticsPage() {
                             size="sm"
                             variant="outline"
                             className="gap-1.5"
-                            onClick={() => window.open(`http://localhost:8080/${analytics.shortCode}`, '_blank')}
+                            onClick={() => {
+                                const url = analytics.shortCode ? getFullShortUrl(analytics.shortCode) : '';
+                                if (url) window.open(url, '_blank');
+                            }}
                         >
                             <ExternalLink className="size-3.5" />
                             <span>Visit</span>
