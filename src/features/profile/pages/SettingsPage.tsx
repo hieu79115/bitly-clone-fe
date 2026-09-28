@@ -139,12 +139,12 @@ export default function SettingsPage() {
                 </p>
             </div>
 
-            {/* 2-Column Responsive Layout: Left (Forms) & Right (Profile Summary & Session) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-start">
-                {/* Left Column (8 cols): Profile Form & Collapsible Password Card */}
-                <div className="lg:col-span-8 space-y-6">
-                    {/* Profile Information Form */}
-                    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            {/* Responsive Layout: Mobile (User Card -> Profile Details -> Password Card -> Session) | Desktop (2-Column Grid) */}
+            <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start w-full">
+                {/* Left Column (8 cols on lg): Profile Form & Collapsible Password Card */}
+                <div className="contents lg:block lg:col-span-8 lg:space-y-6">
+                    {/* 2. Profile Information Form (order-2 on mobile) */}
+                    <div className="order-2 lg:order-none bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                         <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between">
                             <div>
                                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -293,10 +293,10 @@ export default function SettingsPage() {
                         </form>
                     </div>
 
-                    {/* Password & Security Card with Collapsible Form (xổ xuống) */}
-                    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    {/* 3. Password & Security Card with Collapsible Form (order-3 on mobile) */}
+                    <div className="order-3 lg:order-none bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                         <div className={cn(
-                            "p-5 sm:p-6 flex items-center justify-between gap-4 transition-colors",
+                            "p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors",
                             isChangingPassOpen && "border-b border-slate-100"
                         )}>
                             <div className="flex items-center gap-3.5">
@@ -324,7 +324,7 @@ export default function SettingsPage() {
                                         setIsChangingPassOpen(true);
                                     }
                                 }}
-                                className="gap-1.5 shadow-xs cursor-pointer hover:bg-slate-50 shrink-0"
+                                className="gap-1.5 shadow-xs cursor-pointer hover:bg-slate-50 shrink-0 self-start sm:self-auto"
                             >
                                 {isChangingPassOpen ? (
                                     <>
@@ -467,10 +467,10 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Right Column (4 cols): User Profile Overview & Session */}
-                <div className="lg:col-span-4 space-y-6">
-                    {/* Profile Overview Card */}
-                    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5">
+                {/* Right Column (4 cols on lg): User Profile Overview & Session */}
+                <div className="contents lg:block lg:col-span-4 lg:space-y-6">
+                    {/* 1. Profile Overview Card (order-1 on mobile) */}
+                    <div className="order-1 lg:order-none bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5">
                         {/* Avatar & Identity */}
                         <div className="flex flex-col items-center text-center">
                             {/* Round-full avatar, 1 character initial, black background & white text */}
@@ -562,8 +562,8 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    {/* Session & Sign Out Card */}
-                    <div className="bg-white rounded-2xl border border-rose-200/70 shadow-xs p-5 space-y-3">
+                    {/* 4. Session & Sign Out Card (order-4 on mobile) */}
+                    <div className="order-4 lg:order-none bg-white rounded-2xl border border-rose-200/70 shadow-xs p-5 space-y-3">
                         <div className="flex items-center gap-2 text-rose-600">
                             <LogOut className="size-4" />
                             <h4 className="text-xs font-bold uppercase tracking-wider">Account Session</h4>

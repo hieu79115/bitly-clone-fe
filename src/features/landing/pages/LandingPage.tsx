@@ -131,12 +131,6 @@ export default function LandingPage() {
                 <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-gradient-to-tr from-primary/15 to-sky-300/20 rounded-full blur-3xl pointer-events-none -z-10" />
 
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-                    {/* Pill badge */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold shadow-2xs animate-in fade-in slide-in-from-top-2 duration-300">
-                        <Sparkles className="size-3.5" />
-                        <span>Next-Gen URL Shortener & Traffic Analytics</span>
-                    </div>
-
                     {/* Hero Headline */}
                     <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
                         Smarter Links. <br />
@@ -496,9 +490,8 @@ export default function LandingPage() {
                                     >
                                         <span>{faq.q}</span>
                                         <ChevronDown
-                                            className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                                                isOpen ? 'rotate-180' : ''
-                                            }`}
+                                            className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+                                                }`}
                                         />
                                     </button>
                                     {isOpen && (
