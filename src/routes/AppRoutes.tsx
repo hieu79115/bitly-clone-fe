@@ -7,6 +7,7 @@ import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import LinksPage from "@/features/links/pages/LinksPage";
 import AnalyticsPage from "@/features/analytics/pages/AnalyticsPage";
 import SettingsPage from "@/features/profile/pages/SettingsPage";
+import QrCodesPage from "@/features/qr-codes/pages/QrCodesPage";
 import LandingPage from "@/features/landing/pages/LandingPage";
 import ForbiddenPage from "@/components/common/ForbiddenPage";
 import NotFoundPage from "@/components/common/NotFoundPage";
@@ -25,6 +26,7 @@ export default function AppRoutes() {
                 <Route element={<AppLayout />}>
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/links" element={<LinksPage />} />
+                    <Route path="/qr-codes" element={<QrCodesPage />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                 </Route>
