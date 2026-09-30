@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Link2, BarChart3, Settings, X } from 'lucide-react';
+import { LayoutDashboard, Link2, BarChart3, Settings, QrCode, X } from 'lucide-react';
 
 interface SidebarProps {
     onCloseMobile?: () => void;
@@ -8,6 +8,7 @@ interface SidebarProps {
 const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Links', path: '/links', icon: Link2 },
+    { label: 'QR Codes', path: '/qr-codes', icon: QrCode },
     { label: 'Analytics', path: '/analytics', icon: BarChart3 },
     { label: 'Settings', path: '/settings', icon: Settings },
 ];
