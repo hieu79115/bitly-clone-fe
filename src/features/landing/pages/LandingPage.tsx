@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Link2,
@@ -11,8 +11,6 @@ import {
     ArrowRight,
     CheckCircle2,
     ChevronDown,
-    Copy,
-    Check,
     Layers,
     Monitor,
     Globe,
@@ -24,27 +22,8 @@ export default function LandingPage() {
     const navigate = useNavigate();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-    // Interactive Demo state in Hero section
-    const [demoInput, setDemoInput] = useState('');
-    const [demoShortened, setDemoShortened] = useState<string | null>(null);
-    const [copied, setCopied] = useState(false);
-
     // FAQ open state
     const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-    const handleDemoShorten = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!demoInput.trim()) return;
-        const randomCode = Math.random().toString(36).substring(2, 8);
-        setDemoShortened(`http://localhost:8080/${randomCode}`);
-    };
-
-    const handleCopyDemo = () => {
-        if (!demoShortened) return;
-        navigator.clipboard.writeText(demoShortened);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
 
     const faqs = [
         {
@@ -53,7 +32,7 @@ export default function LandingPage() {
         },
         {
             q: 'How fast does the link redirection work?',
-            a: 'Our backend utilizes high-throughput Spring Boot combined with Redis in-memory caching, delivering sub-millisecond redirection latency for your visitors worldwide.',
+            a: 'Redirects are served by a Spring Boot backend backed by Redis in-memory caching, so frequently-visited links are resolved from cache without hitting the database, keeping response times as low as possible.',
         },
         {
             q: 'Can I track click analytics for individual links?',
@@ -126,32 +105,37 @@ export default function LandingPage() {
             </header>
 
             {/* Hero Section */}
-            <section className="relative pt-12 pb-20 sm:pt-20 sm:pb-28 overflow-hidden">
-                {/* Background decorative gradient orbs */}
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-gradient-to-tr from-primary/15 to-sky-300/20 rounded-full blur-3xl pointer-events-none -z-10" />
+            <section className="relative pt-16 pb-24 sm:pt-24 sm:pb-32 overflow-hidden">
+                {/* Background gradient orbs */}
+                <div className="absolute -top-24 left-1/2 -translate-x-1/2 size-[700px] bg-gradient-to-br from-primary/10 via-indigo-400/10 to-sky-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
+                <div className="absolute top-1/2 -left-32 size-[400px] bg-gradient-to-tr from-violet-400/8 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
+                <div className="absolute top-1/2 -right-32 size-[400px] bg-gradient-to-tl from-sky-400/8 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
 
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+
+
+
                     {/* Hero Headline */}
-                    <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
-                        Smarter Links. <br />
-                        <span className="bg-gradient-to-r from-primary via-indigo-600 to-sky-600 bg-clip-text text-transparent">
-                            Deeper Audience Insights.
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+                        Shorten links.
+                        <br />
+                        <span className="bg-gradient-to-r from-indigo-600 via-primary to-sky-500 bg-clip-text text-transparent">
+                            Understand your audience.
                         </span>
                     </h1>
 
                     {/* Subheadline */}
-                    <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed">
-                        Transform long, cluttered links into concise, branded URLs with sub-millisecond redirection.
-                        Track real-time clicks, device breakdowns, browser analytics, and dynamic QR codes in one place.
+                    <p className="max-w-xl mx-auto text-base sm:text-lg text-slate-500 leading-relaxed font-normal">
+                        Turn long URLs into clean, trackable links. Monitor real-time clicks, device types, and browser analytics — all in one dashboard.
                     </p>
 
                     {/* Call to Actions */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                         {isAuthenticated ? (
                             <Button
                                 size="lg"
                                 onClick={() => navigate('/dashboard')}
-                                className="w-full sm:w-auto h-11 px-7 gap-2 shadow-md shadow-primary/25 text-sm font-semibold rounded-xl"
+                                className="w-full sm:w-auto h-12 px-8 gap-2 shadow-lg shadow-primary/20 text-sm font-semibold rounded-xl"
                             >
                                 <span>Open Your Dashboard</span>
                                 <ArrowRight className="size-4" />
@@ -161,16 +145,16 @@ export default function LandingPage() {
                                 <Button
                                     size="lg"
                                     onClick={() => navigate('/register')}
-                                    className="w-full sm:w-auto h-11 px-7 gap-2 shadow-md shadow-primary/25 text-sm font-semibold rounded-xl"
+                                    className="w-full sm:w-auto h-12 px-8 gap-2 shadow-lg shadow-primary/20 text-sm font-semibold rounded-xl"
                                 >
-                                    <span>Create Free Account</span>
+                                    <span>Get Started — It's Free</span>
                                     <ArrowRight className="size-4" />
                                 </Button>
                                 <Button
                                     size="lg"
                                     variant="outline"
                                     onClick={() => navigate('/login')}
-                                    className="w-full sm:w-auto h-11 px-6 text-sm font-semibold rounded-xl bg-white hover:bg-slate-50"
+                                    className="w-full sm:w-auto h-12 px-7 text-sm font-semibold rounded-xl bg-white hover:bg-slate-50"
                                 >
                                     Sign In
                                 </Button>
@@ -178,56 +162,6 @@ export default function LandingPage() {
                         )}
                     </div>
 
-                    {/* Live Interactive Shorten Demo Card */}
-                    <div className="pt-8 max-w-2xl mx-auto">
-                        <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 space-y-3 text-left">
-                            <div className="flex items-center justify-between text-xs text-slate-500 font-medium px-1">
-                                <span className="flex items-center gap-1.5">
-                                    <Zap className="size-3.5 text-amber-500" />
-                                    <span>Try a live demo instantly:</span>
-                                </span>
-                                <span className="text-[11px] text-slate-400">No login required</span>
-                            </div>
-
-                            <form onSubmit={handleDemoShorten} className="flex flex-col sm:flex-row gap-2">
-                                <input
-                                    type="url"
-                                    required
-                                    value={demoInput}
-                                    onChange={(e) => setDemoInput(e.target.value)}
-                                    placeholder="Paste your long link here (e.g. https://github.com/facebook/react)..."
-                                    className="flex-1 h-10 px-3.5 text-xs rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800 placeholder:text-slate-400 bg-slate-50/50"
-                                />
-                                <Button type="submit" className="h-10 px-5 text-xs font-semibold rounded-xl shrink-0 gap-1.5">
-                                    <Sparkles className="size-3.5" />
-                                    <span>Shorten</span>
-                                </Button>
-                            </form>
-
-                            {/* Demo result */}
-                            {demoShortened && (
-                                <div className="bg-emerald-50/60 p-3 rounded-xl border border-emerald-200 flex items-center justify-between gap-3 animate-in fade-in zoom-in-98 duration-150">
-                                    <div className="min-w-0">
-                                        <p className="text-[11px] font-semibold text-emerald-800">
-                                            Your short link demo:
-                                        </p>
-                                        <span className="text-xs font-bold text-primary font-mono truncate block">
-                                            {demoShortened}
-                                        </span>
-                                    </div>
-                                    <Button
-                                        size="xs"
-                                        variant="outline"
-                                        onClick={handleCopyDemo}
-                                        className="gap-1 bg-white text-xs shrink-0"
-                                    >
-                                        {copied ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
-                                        <span>{copied ? 'Copied' : 'Copy'}</span>
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
                 </div>
             </section>
 
@@ -247,14 +181,14 @@ export default function LandingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {/* Feature 1: Lightning Fast */}
+                        {/* Feature 1: Fast Redirects */}
                         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-3 group">
                             <div className="size-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
                                 <Zap className="size-5" />
                             </div>
-                            <h3 className="font-bold text-base text-slate-900">Sub-Millisecond Redirects</h3>
+                            <h3 className="font-bold text-base text-slate-900">Redis-Backed Fast Redirects</h3>
                             <p className="text-xs text-slate-500 leading-relaxed">
-                                Powered by Spring Boot and Redis in-memory storage, your visitors reach their destination almost instantaneously.
+                                Powered by Spring Boot and Redis in-memory caching — hot links are resolved from cache, bypassing the database entirely for snappy redirects.
                             </p>
                         </div>
 
@@ -358,8 +292,8 @@ export default function LandingPage() {
                                     <BarChart3 className="size-4 text-primary" />
                                     <span>Traffic Breakdown Preview</span>
                                 </span>
-                                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                                    Live Sample
+                                <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                                    Sample Data
                                 </span>
                             </div>
 
@@ -443,7 +377,7 @@ export default function LandingPage() {
                             <span className="size-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center mx-auto">
                                 2
                             </span>
-                            <h3 className="font-bold text-base text-slate-900">Customize & Set Rules</h3>
+                            <h3 className="font-bold text-base text-slate-900">Customize</h3>
                             <p className="text-xs text-slate-500 leading-relaxed">
                                 Optionally add a custom slug, expiration date, or organize it into tags for easy searching.
                             </p>
@@ -550,7 +484,7 @@ export default function LandingPage() {
                     </div>
 
                     <p className="text-[11px] text-slate-500">
-                        &copy; {new Date().getFullYear()} Shortener Inc. Built with Spring Boot 3 & React. All rights reserved.
+                        &copy; {new Date().getFullYear()} Shortener. Built with Spring Boot 3 & React. All rights reserved.
                     </p>
 
                     <div className="flex items-center gap-4 text-[11px]">
@@ -562,3 +496,4 @@ export default function LandingPage() {
         </div>
     );
 }
+
