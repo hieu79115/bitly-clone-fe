@@ -31,10 +31,6 @@ export default function LandingPage() {
             a: 'Yes! You can register a free account and start shortening, customizing, and organizing your links with full analytics right away.',
         },
         {
-            q: 'How fast does the link redirection work?',
-            a: 'Redirects are served by a Spring Boot backend backed by Redis in-memory caching, so frequently-visited links are resolved from cache without hitting the database, keeping response times as low as possible.',
-        },
-        {
             q: 'Can I track click analytics for individual links?',
             a: 'Yes, every link comes with a detailed analytics dashboard showing total clicks, daily engagement over time, top browsers, operating systems, and device types.',
         },
