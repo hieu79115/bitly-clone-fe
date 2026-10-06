@@ -14,6 +14,38 @@ const OS_COLORS = [
     '#64748b', // Slate
 ];
 
+interface CustomTickProps {
+    x?: number;
+    y?: number;
+    payload?: {
+        value: string;
+    };
+}
+
+function CustomYAxisTick({ x = 0, y = 0, payload }: CustomTickProps) {
+    if (!payload) return null;
+    const rawText = String(payload.value || '');
+    const maxChars = 14;
+    const displayText =
+        rawText.length > maxChars ? `${rawText.slice(0, maxChars - 1)}…` : rawText;
+
+    return (
+        <text
+            x={x}
+            y={y}
+            textAnchor="end"
+            dominantBaseline="central"
+            fill="#64748b"
+            fontSize={12}
+            fontWeight={500}
+            className="cursor-default select-none"
+        >
+            <title>{rawText}</title>
+            {displayText}
+        </text>
+    );
+}
+
 export default function OsBarChart({ data }: OsBarChartProps) {
     if (!data || data.length === 0) {
         return (
@@ -32,7 +64,7 @@ export default function OsBarChart({ data }: OsBarChartProps) {
                 <BarChart
                     data={sortedData}
                     layout="vertical"
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                 >
                     <XAxis type="number" hide />
                     <YAxis
@@ -40,8 +72,8 @@ export default function OsBarChart({ data }: OsBarChartProps) {
                         dataKey="os"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
-                        width={80}
+                        tick={<CustomYAxisTick />}
+                        width={105}
                     />
                     <Tooltip
                         cursor={false}

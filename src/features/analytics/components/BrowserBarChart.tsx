@@ -14,6 +14,48 @@ const BROWSER_COLORS = [
     '#8b5cf6', // Purple
 ];
 
+export function formatBrowserName(browser: string): string {
+    if (!browser) return 'Unknown';
+    if (browser.toLowerCase().includes('powershell')) return 'PowerShell';
+    if (browser.toLowerCase().includes('postman')) return 'Postman';
+    if (browser.toLowerCase().includes('curl')) return 'cURL';
+    if (browser.toLowerCase().includes('python')) return 'Python';
+    return browser;
+}
+
+interface CustomTickProps {
+    x?: number;
+    y?: number;
+    payload?: {
+        value: string;
+    };
+}
+
+function CustomYAxisTick({ x = 0, y = 0, payload }: CustomTickProps) {
+    if (!payload) return null;
+    const rawText = String(payload.value || '');
+    const formatted = formatBrowserName(rawText);
+    const maxChars = 14;
+    const displayText =
+        formatted.length > maxChars ? `${formatted.slice(0, maxChars - 1)}…` : formatted;
+
+    return (
+        <text
+            x={x}
+            y={y}
+            textAnchor="end"
+            dominantBaseline="central"
+            fill="#64748b"
+            fontSize={12}
+            fontWeight={500}
+            className="cursor-default select-none"
+        >
+            <title>{rawText !== formatted ? `${formatted} (${rawText})` : rawText}</title>
+            {displayText}
+        </text>
+    );
+}
+
 export default function BrowserBarChart({ data }: BrowserBarChartProps) {
     if (!data || data.length === 0) {
         return (
@@ -33,7 +75,7 @@ export default function BrowserBarChart({ data }: BrowserBarChartProps) {
                 <BarChart
                     data={sortedData}
                     layout="vertical"
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                 >
                     <XAxis type="number" hide />
                     <YAxis
@@ -41,8 +83,8 @@ export default function BrowserBarChart({ data }: BrowserBarChartProps) {
                         dataKey="browser"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
-                        width={80}
+                        tick={<CustomYAxisTick />}
+                        width={105}
                     />
                     <Tooltip
                         cursor={false}
@@ -50,9 +92,17 @@ export default function BrowserBarChart({ data }: BrowserBarChartProps) {
                             if (active && payload && payload.length) {
                                 const pData = payload[0].payload as { browser: string; count: number };
                                 const percentage = totalClicks > 0 ? ((pData.count / totalClicks) * 100).toFixed(1) : '0';
+                                const displayName = formatBrowserName(pData.browser);
                                 return (
                                     <div className="bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-lg shadow-xl text-xs space-y-0.5 border border-slate-700/50">
-                                        <p className="font-semibold">{pData.browser}</p>
+                                        <p className="font-semibold">
+                                            {displayName}
+                                            {displayName !== pData.browser && (
+                                                <span className="text-slate-400 font-normal ml-1">
+                                                    ({pData.browser})
+                                                </span>
+                                            )}
+                                        </p>
                                         <p className="text-slate-300">
                                             {pData.count} clicks ({percentage}%)
                                         </p>

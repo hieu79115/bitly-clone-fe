@@ -19,7 +19,7 @@ import { useAnalytics } from '../hooks/useAnalytics';
 import { useUrls } from '@/features/links/hooks/useUrls';
 import ClicksOverTimeChart from '../components/ClicksOverTimeChart';
 import DeviceDonutChart from '../components/DeviceDonutChart';
-import BrowserBarChart from '../components/BrowserBarChart';
+import BrowserBarChart, { formatBrowserName } from '../components/BrowserBarChart';
 import OsBarChart from '../components/OsBarChart';
 import TopLinksTable from '../components/TopLinksTable';
 import SearchableLinkSelector from '../components/SearchableLinkSelector';
@@ -260,7 +260,7 @@ export default function AnalyticsPage() {
                         {isLoading ? (
                             <Loader2 className="size-5 animate-spin text-slate-400" />
                         ) : topBrowser ? (
-                            topBrowser
+                            formatBrowserName(topBrowser)
                         ) : (
                             <span className="text-sm font-medium text-slate-400">No data yet</span>
                         )}
