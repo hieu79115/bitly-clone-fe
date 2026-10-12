@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileApi } from "../api/profileApi";
@@ -7,6 +8,8 @@ import axios from "axios";
 
 export function useProfile() {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const setUser = useAuthStore((state) => state.setUser);
+    const currentUser = useAuthStore((state) => state.user);
     const queryClient = useQueryClient();
 
     const profileQuery = useQuery({
@@ -15,6 +18,19 @@ export function useProfile() {
         enabled: isAuthenticated,
         staleTime: 10 * 1000,
     });
+
+    useEffect(() => {
+        if (profileQuery.data && currentUser) {
+            setUser({
+                ...currentUser,
+                id: profileQuery.data.id || currentUser.id,
+                fullName: profileQuery.data.fullName || currentUser.fullName,
+                avatarUrl: profileQuery.data.avatarUrl || currentUser.avatarUrl,
+                roles: profileQuery.data.roles || currentUser.roles,
+                permissions: profileQuery.data.permissions || currentUser.permissions,
+            });
+        }
+    }, [profileQuery.data, setUser]);
 
     const updateProfileMutation = useMutation({
         mutationFn: (data: UpdateProfileRequest) => profileApi.updateProfile(data),
