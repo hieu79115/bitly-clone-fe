@@ -26,6 +26,14 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
@@ -171,14 +179,19 @@ export default function AdminUserDetailPage() {
 
     const handleSaveRoles = () => {
         if (!user) return;
-        if (selectedRoleNames.length === 0) {
+        const isRoot = user.roles?.includes('SUPER_ADMIN');
+        const roleNamesToSave = isRoot
+            ? Array.from(new Set([...selectedRoleNames, 'SUPER_ADMIN']))
+            : selectedRoleNames.filter((r) => r !== 'SUPER_ADMIN');
+
+        if (roleNamesToSave.length === 0) {
             toast.error('User must have at least one role.');
             return;
         }
         assignRolesMutation.mutate(
             {
                 userId: user.id,
-                roleNames: selectedRoleNames,
+                roleNames: roleNamesToSave,
             },
             {
                 onSuccess: () => {
@@ -251,16 +264,19 @@ export default function AdminUserDetailPage() {
                     </Button>
                     <span className="text-slate-300">/</span>
 
-                    {user.avatarUrl && (
-                        <img
-                            src={user.avatarUrl}
-                            alt=""
-                            className="size-6 rounded-full object-cover border border-slate-200"
-                            onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
-                            }}
-                        />
-                    )}
+                    <div className="size-6 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center text-[10px] shadow-xs shrink-0 overflow-hidden relative">
+                        {user.avatarUrl ? (
+                            <img
+                                src={user.avatarUrl}
+                                alt=""
+                                className="size-full object-cover absolute inset-0"
+                                onError={(e) => {
+                                    (e.target as HTMLElement).style.display = 'none';
+                                }}
+                            />
+                        ) : null}
+                        <span>{(user.fullName || user.email).charAt(0).toUpperCase()}</span>
+                    </div>
 
                     <span className="text-sm font-bold text-slate-900">
                         {user.fullName || user.email}
@@ -336,21 +352,18 @@ export default function AdminUserDetailPage() {
                         <form onSubmit={handleSaveProfile} className="space-y-3.5">
                             {/* Avatar Section */}
                             <div className="flex items-center gap-3.5 pb-3 border-b border-slate-100">
-                                <div className="size-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
+                                <div className="size-12 rounded-full bg-slate-900 text-white font-semibold text-base flex items-center justify-center shadow-xs shrink-0 overflow-hidden relative">
                                     {avatarUrl ? (
                                         <img
                                             src={avatarUrl}
                                             alt="Avatar"
-                                            className="size-full object-cover"
+                                            className="size-full object-cover absolute inset-0"
                                             onError={(e) => {
                                                 (e.target as HTMLElement).style.display = 'none';
                                             }}
                                         />
-                                    ) : (
-                                        <span className="text-xs font-bold text-slate-400 uppercase">
-                                            {(fullName || user.email).charAt(0)}
-                                        </span>
-                                    )}
+                                    ) : null}
+                                    <span>{(fullName || user.email).charAt(0).toUpperCase()}</span>
                                 </div>
                                 <div className="flex-1">
                                     <label className="text-xs font-medium text-slate-700 mb-1 block">Avatar URL</label>
@@ -474,18 +487,24 @@ export default function AdminUserDetailPage() {
                             />
                         </div>
 
-                        <select
+                        <Select
                             value={linksStatusFilter}
-                            onChange={(e) => {
-                                setLinksStatusFilter(e.target.value as any);
-                                setLinksPage(0);
+                            onValueChange={(val) => {
+                                if (val) {
+                                    setLinksStatusFilter(val as 'all' | 'active' | 'disabled');
+                                    setLinksPage(0);
+                                }
                             }}
-                            className="h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-700 cursor-pointer"
                         >
-                            <option value="all">All</option>
-                            <option value="active">Active</option>
-                            <option value="disabled">Disabled</option>
-                        </select>
+                            <SelectTrigger className="h-8 px-2.5 rounded-lg border-slate-200 bg-slate-50 text-xs text-slate-700 min-w-28">
+                                <SelectValue placeholder="All" />
+                            </SelectTrigger>
+                            <SelectContent align="end">
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="disabled">Disabled</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
@@ -705,7 +724,7 @@ export default function AdminUserDetailPage() {
                                     <h3 className="text-sm font-semibold text-slate-900">Assigned Roles</h3>
                                     <p className="text-xs text-slate-500 mt-0.5">Current user role assignments</p>
                                 </div>
-                                {!isEditingRoles && (
+                                {!isEditingRoles && !user.roles?.includes('SUPER_ADMIN') && (
                                     <Button
                                         size="xs"
                                         variant="outline"
@@ -738,40 +757,42 @@ export default function AdminUserDetailPage() {
                             ) : (
                                 <div className="space-y-3 pt-1">
                                     <div className="space-y-2">
-                                        {availableRoles.map((role) => {
-                                            const isAssigned = selectedRoleNames.includes(role.name);
-                                            const isSelfAdmin = isSelf && role.name === 'ADMIN';
+                                        {availableRoles
+                                            .filter((role) => role.name !== 'SUPER_ADMIN')
+                                            .map((role) => {
+                                                const isAssigned = selectedRoleNames.includes(role.name);
+                                                const isRoleDisabled = isSelf && role.name === 'ADMIN';
 
-                                            return (
-                                                <label
-                                                    key={role.id}
-                                                    className={`flex items-center justify-between p-2.5 rounded-lg border text-xs cursor-pointer transition-colors ${
-                                                        isAssigned
-                                                            ? 'bg-slate-50 border-slate-300'
-                                                            : 'bg-white border-slate-200 hover:border-slate-300'
-                                                    }`}
-                                                >
-                                                    <div className="flex items-center gap-2.5">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isAssigned}
-                                                            onChange={() => handleToggleRole(role.name)}
-                                                            disabled={isSelfAdmin}
-                                                            className="size-3.5 rounded text-slate-900 border-slate-300"
-                                                        />
-                                                        <span className="font-medium text-slate-900">{role.name}</span>
-                                                        {role.description && (
-                                                            <span className="text-slate-400 text-[11px] truncate">
-                                                                - {role.description}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <span className="text-[10px] text-slate-400">
-                                                        {role.permissions?.length || 0} perms
-                                                    </span>
-                                                </label>
-                                            );
-                                        })}
+                                                return (
+                                                    <label
+                                                        key={role.id}
+                                                        className={`flex items-center justify-between p-2.5 rounded-lg border text-xs transition-colors ${
+                                                            isRoleDisabled ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer'
+                                                        } ${
+                                                            isAssigned
+                                                                ? 'bg-slate-50 border-slate-300'
+                                                                : 'bg-white border-slate-200 hover:border-slate-300'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center gap-2.5">
+                                                            <Checkbox
+                                                                checked={isAssigned}
+                                                                onCheckedChange={() => handleToggleRole(role.name)}
+                                                                disabled={isRoleDisabled}
+                                                            />
+                                                            <span className="font-medium text-slate-900">{role.name}</span>
+                                                            {role.description ? (
+                                                                <span className="text-slate-400 text-[11px] truncate">
+                                                                    - {role.description}
+                                                                </span>
+                                                            ) : null}
+                                                        </div>
+                                                        <span className="text-[10px] text-slate-400">
+                                                            {role.permissions?.length || 0} perms
+                                                        </span>
+                                                    </label>
+                                                );
+                                            })}
                                     </div>
 
                                     <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">

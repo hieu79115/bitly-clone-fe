@@ -17,9 +17,44 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
 import type { RoleItem, PermissionItem } from '../types';
+
+const PERMISSION_DEPENDENCIES: Record<string, string[]> = {
+    USER_MANAGE: ['USER_READ'],
+    URL_DISABLE: ['URL_READ'],
+    URL_DELETE: ['URL_READ'],
+    ROLE_MANAGE: ['ROLE_READ'],
+};
+
+const PERMISSION_REVERSE_DEPENDENCIES: Record<string, string[]> = {
+    USER_READ: ['USER_MANAGE'],
+    URL_READ: ['URL_DISABLE', 'URL_DELETE'],
+    ROLE_READ: ['ROLE_MANAGE'],
+};
+
+function togglePermissionWithDependencies(currentPerms: string[], permToToggle: string): string[] {
+    const isCurrentlyChecked = currentPerms.includes(permToToggle);
+    if (isCurrentlyChecked) {
+        // Unchecking: if it's a READ permission, also uncheck all dependent action permissions
+        const toRemove = new Set<string>([permToToggle]);
+        const dependents = PERMISSION_REVERSE_DEPENDENCIES[permToToggle];
+        if (dependents) {
+            dependents.forEach((dep) => toRemove.add(dep));
+        }
+        return currentPerms.filter((p) => !toRemove.has(p));
+    } else {
+        // Checking: if it's an action permission, automatically also check its required READ permission
+        const toAdd = new Set<string>([permToToggle]);
+        const required = PERMISSION_DEPENDENCIES[permToToggle];
+        if (required) {
+            required.forEach((req) => toAdd.add(req));
+        }
+        return Array.from(new Set([...currentPerms, ...toAdd]));
+    }
+}
 
 export default function AdminRolesPage() {
     const hasRoleManage = useAuthStore((state) => state.hasPermission('ROLE_MANAGE'));
@@ -63,20 +98,12 @@ export default function AdminRolesPage() {
     };
 
     const handleToggleCreatePerm = (permName: string) => {
-        if (createSelectedPerms.includes(permName)) {
-            setCreateSelectedPerms(createSelectedPerms.filter((p) => p !== permName));
-        } else {
-            setCreateSelectedPerms([...createSelectedPerms, permName]);
-        }
+        setCreateSelectedPerms((prev) => togglePermissionWithDependencies(prev, permName));
     };
 
     const handleToggleEditPerm = (permName: string) => {
         if (!editRole || editRole.name === 'SUPER_ADMIN') return;
-        if (editSelectedPerms.includes(permName)) {
-            setEditSelectedPerms(editSelectedPerms.filter((p) => p !== permName));
-        } else {
-            setEditSelectedPerms([...editSelectedPerms, permName]);
-        }
+        setEditSelectedPerms((prev) => togglePermissionWithDependencies(prev, permName));
     };
 
     const handleSaveCreate = () => {
@@ -126,12 +153,22 @@ export default function AdminRolesPage() {
 
     // Group permissions by module
     const groupedPermissions = useMemo(() => {
-        return permissions.reduce<Record<string, PermissionItem[]>>((acc, perm) => {
+        const grouped = permissions.reduce<Record<string, PermissionItem[]>>((acc, perm) => {
             const mod = perm.module || 'OTHER';
             if (!acc[mod]) acc[mod] = [];
             acc[mod].push(perm);
             return acc;
         }, {});
+
+        Object.keys(grouped).forEach((mod) => {
+            grouped[mod].sort((a, b) => {
+                if (a.name.endsWith('_READ')) return -1;
+                if (b.name.endsWith('_READ')) return 1;
+                return a.name.localeCompare(b.name);
+            });
+        });
+
+        return grouped;
     }, [permissions]);
 
     // Filter roles by search
@@ -256,14 +293,16 @@ export default function AdminRolesPage() {
 
                             {hasRoleManage && (
                                 <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-                                    <Button
-                                        variant="outline"
-                                        size="xs"
-                                        onClick={() => handleOpenEdit(role)}
-                                        className="h-7 text-xs rounded-lg px-2.5 text-slate-700"
-                                    >
-                                        Configure
-                                    </Button>
+                                    {role.name !== 'SUPER_ADMIN' && (
+                                        <Button
+                                            variant="outline"
+                                            size="xs"
+                                            onClick={() => handleOpenEdit(role)}
+                                            className="h-7 text-xs rounded-lg px-2.5 text-slate-700"
+                                        >
+                                            Configure
+                                        </Button>
+                                    )}
                                     {!role.isSystem && (
                                         <Button
                                             variant="ghost"
@@ -336,12 +375,10 @@ export default function AdminRolesPage() {
                                                             key={perm.id}
                                                             className="flex items-center gap-2 text-xs cursor-pointer select-none"
                                                         >
-                                                            <input
-                                                                type="checkbox"
+                                                            <Checkbox
                                                                 checked={isChecked}
-                                                                onChange={() => handleToggleEditPerm(perm.name)}
+                                                                onCheckedChange={() => handleToggleEditPerm(perm.name)}
                                                                 disabled={isSuperAdmin}
-                                                                className="size-3.5 rounded text-slate-900 border-slate-300"
                                                             />
                                                             <span className="font-mono text-[11px] text-slate-700">
                                                                 {perm.name}
@@ -432,11 +469,9 @@ export default function AdminRolesPage() {
                                                             key={perm.id}
                                                             className="flex items-center gap-2 text-xs cursor-pointer select-none"
                                                         >
-                                                            <input
-                                                                type="checkbox"
+                                                            <Checkbox
                                                                 checked={isChecked}
-                                                                onChange={() => handleToggleCreatePerm(perm.name)}
-                                                                className="size-3.5 rounded text-slate-900 border-slate-300"
+                                                                onCheckedChange={() => handleToggleCreatePerm(perm.name)}
                                                             />
                                                             <span className="font-mono text-[11px] text-slate-700">
                                                                 {perm.name}

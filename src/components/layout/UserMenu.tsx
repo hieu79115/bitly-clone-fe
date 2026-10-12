@@ -26,6 +26,17 @@ export default function UserMenu() {
         ? 'MODERATOR'
         : roles[0] || 'USER';
 
+    const hasPermission = useAuthStore((state) => state.hasPermission);
+    const adminTarget = hasPermission('ANALYTICS_READ')
+        ? '/admin'
+        : hasPermission('USER_READ')
+        ? '/admin/users'
+        : hasPermission('URL_READ')
+        ? '/admin/links'
+        : hasPermission('ROLE_READ')
+        ? '/admin/roles'
+        : '/admin';
+
     // Click outside handler
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -43,17 +54,19 @@ export default function UserMenu() {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-left"
             >
-                {profile?.avatarUrl ? (
-                    <img
-                        src={profile.avatarUrl}
-                        alt={displayName}
-                        className="size-8 rounded-full object-cover border border-slate-200"
-                    />
-                ) : (
-                    <div className="size-8 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center text-sm shadow-xs">
-                        {initial}
-                    </div>
-                )}
+                <div className="size-8 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center text-sm shadow-xs shrink-0 overflow-hidden relative">
+                    {profile?.avatarUrl ? (
+                        <img
+                            src={profile.avatarUrl}
+                            alt={displayName}
+                            className="size-full object-cover absolute inset-0"
+                            onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                            }}
+                        />
+                    ) : null}
+                    <span>{initial}</span>
+                </div>
                 <div className="hidden sm:block">
                     <div className="flex items-center gap-1.5">
                         <p className="text-xs font-semibold text-slate-800 leading-none">{displayName}</p>
@@ -97,7 +110,7 @@ export default function UserMenu() {
                     <div className="py-1">
                         {isAdmin && (
                             <Link
-                                to="/admin"
+                                to={adminTarget}
                                 onClick={() => setIsOpen(false)}
                                 className="flex items-center gap-2.5 px-3 py-2 text-sm text-purple-700 hover:bg-purple-50 font-medium transition-colors"
                             >

@@ -19,6 +19,13 @@ import {
 } from '../hooks/useAdmin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
@@ -148,18 +155,24 @@ export default function AdminUrlsPage() {
                     />
                 </div>
 
-                <select
+                <Select
                     value={selectedStatus}
-                    onChange={(e) => {
-                        setSelectedStatus(e.target.value);
-                        setPage(0);
+                    onValueChange={(val) => {
+                        if (val) {
+                            setSelectedStatus(val as 'all' | 'active' | 'disabled');
+                            setPage(0);
+                        }
                     }}
-                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-700 cursor-pointer"
                 >
-                    <option value="all">All</option>
-                    <option value="active">Active</option>
-                    <option value="disabled">Disabled</option>
-                </select>
+                    <SelectTrigger className="h-8 px-2.5 rounded-lg border-slate-200 bg-slate-50 text-xs text-slate-700 min-w-28">
+                        <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="disabled">Disabled</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             {/* Links Table */}

@@ -39,11 +39,19 @@ export default function AppRoutes() {
 
                     {/* Admin Dynamic RBAC Protected Routes */}
                     <Route element={<AdminRoute />}>
-                        <Route path="/admin" element={<AdminDashboardPage />} />
-                        <Route path="/admin/users" element={<AdminUsersPage />} />
-                        <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
-                        <Route path="/admin/links" element={<AdminUrlsPage />} />
-                        <Route path="/admin/roles" element={<AdminRolesPage />} />
+                        <Route element={<AdminRoute requiredPermission="ANALYTICS_READ" />}>
+                            <Route path="/admin" element={<AdminDashboardPage />} />
+                        </Route>
+                        <Route element={<AdminRoute requiredPermission="USER_READ" />}>
+                            <Route path="/admin/users" element={<AdminUsersPage />} />
+                            <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
+                        </Route>
+                        <Route element={<AdminRoute requiredPermission="URL_READ" />}>
+                            <Route path="/admin/links" element={<AdminUrlsPage />} />
+                        </Route>
+                        <Route element={<AdminRoute requiredPermission="ROLE_READ" />}>
+                            <Route path="/admin/roles" element={<AdminRolesPage />} />
+                        </Route>
                     </Route>
                 </Route>
             </Route>

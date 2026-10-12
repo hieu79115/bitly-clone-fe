@@ -11,6 +11,13 @@ import { useAdminUsers, useAdminRoles } from '../hooks/useAdmin';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { format, parseISO } from 'date-fns';
 
 export default function AdminUsersPage() {
@@ -90,34 +97,46 @@ export default function AdminUsersPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <select
+                    <Select
                         value={selectedRole}
-                        onChange={(e) => {
-                            setSelectedRole(e.target.value);
-                            setPage(0);
+                        onValueChange={(val) => {
+                            if (val) {
+                                setSelectedRole(val as string);
+                                setPage(0);
+                            }
                         }}
-                        className="h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-700 focus:outline-none cursor-pointer"
                     >
-                        <option value="all">All Roles</option>
-                        {availableRoles?.map((r) => (
-                            <option key={r.id} value={r.name}>
-                                {r.name}
-                            </option>
-                        ))}
-                    </select>
+                        <SelectTrigger className="h-8 px-2.5 rounded-lg border-slate-200 bg-slate-50 text-xs text-slate-700 min-w-32">
+                            <SelectValue placeholder="All Roles" />
+                        </SelectTrigger>
+                        <SelectContent align="end">
+                            <SelectItem value="all">All Roles</SelectItem>
+                            {availableRoles?.map((r) => (
+                                <SelectItem key={r.id} value={r.name}>
+                                    {r.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                    <select
+                    <Select
                         value={selectedStatus}
-                        onChange={(e) => {
-                            setSelectedStatus(e.target.value);
-                            setPage(0);
+                        onValueChange={(val) => {
+                            if (val) {
+                                setSelectedStatus(val as 'all' | 'active' | 'suspended');
+                                setPage(0);
+                            }
                         }}
-                        className="h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-700 focus:outline-none cursor-pointer"
                     >
-                        <option value="all">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="suspended">Suspended</option>
-                    </select>
+                        <SelectTrigger className="h-8 px-2.5 rounded-lg border-slate-200 bg-slate-50 text-xs text-slate-700 min-w-28">
+                            <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent align="end">
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="suspended">Suspended</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 

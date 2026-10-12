@@ -85,6 +85,7 @@ export const useAuthStore = create<AuthState>()(
                     get().hasRole('MODERATOR') ||
                     get().hasPermission('URL_READ') ||
                     get().hasPermission('USER_READ') ||
+                    get().hasPermission('ROLE_READ') ||
                     get().hasPermission('ANALYTICS_READ')
                 );
             },

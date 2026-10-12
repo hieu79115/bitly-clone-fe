@@ -14,15 +14,23 @@ const navItems = [
     { label: 'Settings', path: '/settings', icon: Settings },
 ];
 
-const adminNavItems = [
-    { label: 'Admin Overview', path: '/admin', icon: Shield },
-    { label: 'User Directory', path: '/admin/users', icon: Users },
-    { label: 'Links Moderation', path: '/admin/links', icon: Globe },
-    { label: 'Roles & Matrix', path: '/admin/roles', icon: KeyRound },
+interface AdminNavItem {
+    label: string;
+    path: string;
+    icon: React.ComponentType<{ className?: string }>;
+    permission: string;
+}
+
+const adminNavItems: AdminNavItem[] = [
+    { label: 'Admin Overview', path: '/admin', icon: Shield, permission: 'ANALYTICS_READ' },
+    { label: 'User Directory', path: '/admin/users', icon: Users, permission: 'USER_READ' },
+    { label: 'Links Moderation', path: '/admin/links', icon: Globe, permission: 'URL_READ' },
+    { label: 'Roles & Matrix', path: '/admin/roles', icon: KeyRound, permission: 'ROLE_READ' },
 ];
 
 export default function Sidebar({ onCloseMobile }: SidebarProps) {
-    const isAdmin = useAuthStore((state) => state.isAdmin());
+    const hasPermission = useAuthStore((state) => state.hasPermission);
+    const visibleAdminNavItems = adminNavItems.filter((item) => hasPermission(item.permission));
 
     return (
         <aside className="w-64 h-full bg-white border-r border-slate-200/80 flex flex-col justify-between overflow-y-auto">
@@ -72,14 +80,14 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
                         );
                     })}
 
-                    {isAdmin && (
+                    {visibleAdminNavItems.length > 0 && (
                         <>
                             <div className="pt-4 pb-1 px-3">
                                 <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                                     Admin
                                 </p>
                             </div>
-                            {adminNavItems.map((item) => {
+                            {visibleAdminNavItems.map((item) => {
                                 const Icon = item.icon;
                                 return (
                                     <NavLink
