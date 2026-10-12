@@ -8,6 +8,8 @@ export interface UserProfile {
     company?: string;
     totalUrls: number;
     totalClicks: number;
+    roles?: string[];
+    permissions?: string[];
     createdAt: string;
 }
 

@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
+import AdminRoute from "@/components/common/AdminRoute";
 import AppLayout from "@/components/layout/AppLayout";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
@@ -12,6 +13,12 @@ import LandingPage from "@/features/landing/pages/LandingPage";
 import ForbiddenPage from "@/components/common/ForbiddenPage";
 import NotFoundPage from "@/components/common/NotFoundPage";
 import LinkExpiredPage from "@/features/links/pages/LinkExpiredPage";
+import LinkDisabledPage from "@/features/links/pages/LinkDisabledPage";
+import AdminDashboardPage from "@/features/admin/pages/AdminDashboardPage";
+import AdminUsersPage from "@/features/admin/pages/AdminUsersPage";
+import AdminUrlsPage from "@/features/admin/pages/AdminUrlsPage";
+import AdminRolesPage from "@/features/admin/pages/AdminRolesPage";
+import AdminUserDetailPage from "@/features/admin/pages/AdminUserDetailPage";
 
 export default function AppRoutes() {
     return (
@@ -29,10 +36,28 @@ export default function AppRoutes() {
                     <Route path="/qr-codes" element={<QrCodesPage />} />
                     <Route path="/analytics" element={<AnalyticsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
+
+                    {/* Admin Dynamic RBAC Protected Routes */}
+                    <Route element={<AdminRoute />}>
+                        <Route element={<AdminRoute requiredPermission="ANALYTICS_READ" />}>
+                            <Route path="/admin" element={<AdminDashboardPage />} />
+                        </Route>
+                        <Route element={<AdminRoute requiredPermission="USER_READ" />}>
+                            <Route path="/admin/users" element={<AdminUsersPage />} />
+                            <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
+                        </Route>
+                        <Route element={<AdminRoute requiredPermission="URL_READ" />}>
+                            <Route path="/admin/links" element={<AdminUrlsPage />} />
+                        </Route>
+                        <Route element={<AdminRoute requiredPermission="ROLE_READ" />}>
+                            <Route path="/admin/roles" element={<AdminRolesPage />} />
+                        </Route>
+                    </Route>
                 </Route>
             </Route>
 
-            {/* Error Routes */}
+            {/* Security Warning & Error Routes */}
+            <Route path="/link-disabled" element={<LinkDisabledPage />} />
             <Route path="/link-expired" element={<LinkExpiredPage />} />
             <Route path="/403" element={<ForbiddenPage />} />
             <Route path="*" element={<NotFoundPage />} />

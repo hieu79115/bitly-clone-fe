@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Link2, BarChart3, Settings, QrCode, X } from 'lucide-react';
+import { LayoutDashboard, Link2, BarChart3, Settings, QrCode, X, Shield, Users, Globe, KeyRound } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
 
 interface SidebarProps {
     onCloseMobile?: () => void;
@@ -13,9 +14,26 @@ const navItems = [
     { label: 'Settings', path: '/settings', icon: Settings },
 ];
 
+interface AdminNavItem {
+    label: string;
+    path: string;
+    icon: React.ComponentType<{ className?: string }>;
+    permission: string;
+}
+
+const adminNavItems: AdminNavItem[] = [
+    { label: 'Admin Overview', path: '/admin', icon: Shield, permission: 'ANALYTICS_READ' },
+    { label: 'User Directory', path: '/admin/users', icon: Users, permission: 'USER_READ' },
+    { label: 'Links Moderation', path: '/admin/links', icon: Globe, permission: 'URL_READ' },
+    { label: 'Roles & Matrix', path: '/admin/roles', icon: KeyRound, permission: 'ROLE_READ' },
+];
+
 export default function Sidebar({ onCloseMobile }: SidebarProps) {
+    const hasPermission = useAuthStore((state) => state.hasPermission);
+    const visibleAdminNavItems = adminNavItems.filter((item) => hasPermission(item.permission));
+
     return (
-        <aside className="w-64 h-full bg-white border-r border-slate-200/80 flex flex-col justify-between">
+        <aside className="w-64 h-full bg-white border-r border-slate-200/80 flex flex-col justify-between overflow-y-auto">
             {/* Top: Logo & Nav items */}
             <div>
                 {/* Brand Header */}
@@ -40,12 +58,14 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
 
                 {/* Navigation links */}
                 <nav className="p-4 space-y-1.5">
+                    <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Main</p>
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         return (
                             <NavLink
                                 key={item.path}
                                 to={item.path}
+                                end={item.path === '/dashboard'}
                                 onClick={onCloseMobile}
                                 className={({ isActive }) =>
                                     `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${isActive
@@ -59,6 +79,36 @@ export default function Sidebar({ onCloseMobile }: SidebarProps) {
                             </NavLink>
                         );
                     })}
+
+                    {visibleAdminNavItems.length > 0 && (
+                        <>
+                            <div className="pt-4 pb-1 px-3">
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                    Admin
+                                </p>
+                            </div>
+                            {visibleAdminNavItems.map((item) => {
+                                const Icon = item.icon;
+                                return (
+                                    <NavLink
+                                        key={item.path}
+                                        to={item.path}
+                                        end={item.path === '/admin'}
+                                        onClick={onCloseMobile}
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${isActive
+                                                ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25 font-semibold'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                            }`
+                                        }
+                                    >
+                                        <Icon className="size-4 shrink-0" />
+                                        <span>{item.label}</span>
+                                    </NavLink>
+                                );
+                            })}
+                        </>
+                    )}
                 </nav>
             </div>
 
